@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ReportsModule } from './reports/reports.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
-
+import { User } from './users/user.entity';
+import { Report } from './reports/report.entity'
 @Module({
   imports: [
     ConfigModule.forRoot({isGlobal:true}),
@@ -16,8 +17,9 @@ import { ConfigModule } from '@nestjs/config';
       username:process.env.DB_USERNAME,
       password:process.env.DB_PASSWORD,
       database:process.env.DB_NAME,
-      entities:[],
-      synchronize:true
+      entities:[User,Report],
+      synchronize:true,
+      logging:true
     }),
     UsersModule,
     ReportsModule],
