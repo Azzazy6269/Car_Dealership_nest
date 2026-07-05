@@ -19,7 +19,7 @@ import { Report } from './reports/report.entity'
       database:process.env.DB_NAME,
       entities:[User,Report],
       synchronize:true,
-      logging:true
+      logging:false
     }),
     UsersModule,
     ReportsModule],
