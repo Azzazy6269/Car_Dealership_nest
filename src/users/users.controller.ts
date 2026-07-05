@@ -1,8 +1,10 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, UseInterceptors } from '@nestjs/common';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UsersService } from './users.service';
 import { UpdateUserDTO } from './dto/updateUser.dto';
+import { SerializeInterceptor } from 'src/interceptor/serialize.interceptor';
 
+@UseInterceptors(SerializeInterceptor)
 @Controller('users')
 export class UsersController {
     constructor(
@@ -12,24 +14,25 @@ export class UsersController {
     @Post('/register')
     async createUser(@Body() body:CreateUserDto){
         const user= await this.usersService.create(body.email,body.password)
-        return {
-            success:true,
-            data:{user}
-        }
+        return user
     }
 
     @Get('/:id')
     async findOne(@Param('id',ParseIntPipe) id:number){
         try{
             const user= await this.usersService.findOneById(id);
-            return {
-                success:true,
-                data:{user}
-            }
+            return user
         }catch(error:any){
-            return {
-                success:false,
-                error
+            if (error.message === "user not found") {
+                throw new NotFoundException({
+                    success: false,
+                    error: error.message
+                });
+            } else {
+                throw new BadRequestException({
+                    success: false,
+                    error: error.message
+                });
             }
         }
     }
@@ -37,24 +40,25 @@ export class UsersController {
     @Get('/')
     async findAll(){
         const users= await this.usersService.findAll();
-        return {
-            success:true,
-            data:{users}
-        }
+        return users
     }
     
     @Patch('/:id')
     async updateUser(@Param('id',ParseIntPipe) id:number,@Body() body:UpdateUserDTO){
         try{
             const user= await this.usersService.updateUser(id,body);
-            return {
-                success:true,
-                data:{user}
-            }
+            return user
         }catch(error:any){
-            return {
-                success:false,
-                error
+            if (error.message === "user not found") {
+                throw new NotFoundException({
+                    success: false,
+                    error: error.message
+                });
+            } else {
+                throw new BadRequestException({
+                    success: false,
+                    error: error.message
+                });
             }
         }
     }
@@ -62,15 +66,19 @@ export class UsersController {
     @Delete('/:id')
     async deleteUser(@Param('id',ParseIntPipe) id:number){
         try{
-            const deleted= await this.usersService.delete(id);
-            return {
-                success:true,
-                data:{deleted}
-            }
+            const {deleted}= await this.usersService.delete(id);
+            return {deleted}
         }catch(error:any){
-            return {
-                success:false,
-                error
+            if (error.message === "user not found") {
+                throw new NotFoundException({
+                    success: false,
+                    error: error.message
+                });
+            } else {
+                throw new BadRequestException({
+                    success: false,
+                    error: error.message
+                });
             }
         }
     }
