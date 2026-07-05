@@ -2,9 +2,10 @@ import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Dele
 import { CreateUserDto } from './dto/createUser.dto';
 import { UsersService } from './users.service';
 import { UpdateUserDTO } from './dto/updateUser.dto';
-import { SerializeInterceptor } from 'src/interceptor/serialize.interceptor';
+import { Serialize, SerializeInterceptor } from 'src/interceptor/serialize.interceptor';
+import { UserDTO } from './dto/userSerialize.dto';
 
-@UseInterceptors(SerializeInterceptor)
+@Serialize(UserDTO)
 @Controller('users')
 export class UsersController {
     constructor(
